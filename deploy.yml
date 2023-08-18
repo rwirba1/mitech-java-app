@@ -35,7 +35,12 @@
         state: absent
 
     - name: Enable Apache2 site
-      command: a2ensite apache2-site
+      command: a2ensite apache2-site.conf
+
+    - name: Copy mitech.jar to Apache DocumentRoot
+      copy:
+        src: mitech.jar
+        dest: /var/www/html/mitech.jar
 
     - name: Reload Apache2 service
       service:
