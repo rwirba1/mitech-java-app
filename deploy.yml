@@ -38,8 +38,7 @@
     - name: Disable default Apache2 site
       apache2_module:
         state: absent
-        name: rewrite
-      command: a2dissite 000-default
+        name: 000-default
       notify:
         - Reload Apache2
 
