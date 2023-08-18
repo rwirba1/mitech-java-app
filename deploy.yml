@@ -1,0 +1,60 @@
+---
+- name: Install, configure Apache2 as a reverse proxy, and deploy the Spring Boot app
+  hosts: your_target_group_or_host
+  become: yes # to run tasks as sudo
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Enable necessary Apache2 modules for reverse proxy
+      command:
+        cmd: a2enmod {{ item }}
+      loop:
+        - proxy
+        - proxy_http
+      notify: Restart apache2
+
+    - name: Set up reverse proxy configuration
+      copy:
+        content: |
+          <VirtualHost *:80>
+              ProxyPass / http://localhost:8080/
+              ProxyPassReverse / http://localhost:8080/
+          </VirtualHost>
+        dest: /etc/apache2/sites-available/000-default.conf
+      notify: Restart apache2
+
+    - name: Ensure Apache2 is started and enabled on boot
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Copy Spring Boot artifact to EC2
+      copy:
+        src: /path/to/your/local/yourapp.jar
+        dest: /path/on/ec2/yourapp.jar
+
+    - name: Check if the app is already running
+      shell: pgrep -f "java -jar /path/on/ec2/yourapp.jar"
+      register: app_pid
+      ignore_errors: yes
+
+    - name: Start Spring Boot application
+      shell: nohup java -jar /path/on/ec2/yourapp.jar > /dev/null 2>&1 &
+      args:
+        chdir: /path/on/ec2/
+      when: app_pid.rc != 0  # Only start if the app isn't already running
+
+  handlers:
+    - name: Restart apache2
+      service:
+        name: apache2
+        state: restarted
