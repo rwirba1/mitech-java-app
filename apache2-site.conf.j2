@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
+
+    <Directory /var/www/html>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    <Location "/mitech.jar">
+        ProxyPass !
+        ProxyPassMatch ^/mitech.jar !
+        ProxyPass / http://localhost:8080/
+        ProxyPassReverse / http://localhost:8080/
+    </Location>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
