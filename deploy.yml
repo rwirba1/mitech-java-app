@@ -1,11 +1,10 @@
 ---
-- name: Deploy Spring Boot Application with Apache2
+- name: Install and configure Apache2 with Reverse Proxy
   hosts: localhost
   become: yes
-  gather_facts: yes
 
   tasks:
-    - name: Update APT cache
+    - name: Update apt cache
       apt:
         update_cache: yes
 
@@ -14,47 +13,31 @@
         name: apache2
         state: present
 
-    - name: Copy JAR file to deployment directory
+    - name: Enable Apache2 modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - proxy
+        - proxy_http
+        - proxy_html
+        - proxy_wstunnel
+        - rewrite
+
+    - name: Copy Apache2 site configuration
       copy:
-        src: target/mitech.jar  # Adjust the source path if needed
-        dest: /var/www/html/mitech.jar
-        mode: 0644  # Set appropriate file permissions
-
-    - name: Configure Apache2 to serve the JAR file
-      template:
-        src: apache2-site.conf.j2  # Create a Jinja2 template for Apache2 configuration
-        dest: /etc/apache2/sites-available/mitech.conf
-        owner: root
-        group: root
-        mode: '0644'
-      notify:
-        - Reload Apache2
-
-    - name: Enable Apache2 site
-      command: a2ensite mit
-      notify:
-        - Restart Apache2
+        src: apache2-site.conf
+        dest: /etc/apache2/sites-available/apache2-site.conf
 
     - name: Disable default Apache2 site
       apache2_module:
-        state: absent
         name: 000-default
-      notify:
-        - Reload Apache2
+        state: absent
 
-    - name: Open port 80 in UFW
-      ufw:
-        rule: allow
-        port: 80
-        proto: tcp
+    - name: Enable Apache2 site
+      command: a2ensite apache2-site
 
-  handlers:
-    - name: Reload Apache2
-      systemd:
+    - name: Reload Apache2 service
+      service:
         name: apache2
         state: reloaded
-
-    - name: Restart Apache2
-      systemd:
-        name: apache2
-        state: restarted
