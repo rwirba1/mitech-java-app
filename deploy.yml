@@ -31,9 +31,6 @@
         - Reload Apache2
 
     - name: Enable Apache2 site
-      apache2_module:
-        state: present
-        name: rewrite
       command: a2ensite mit
       notify:
         - Restart Apache2
