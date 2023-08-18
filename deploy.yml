@@ -13,16 +13,30 @@
         name: apache2
         state: present
 
-    - name: Enable Apache2 modules
+    - name: Enable Apache2 proxy module
       apache2_module:
-        name: "{{ item }}"
+        name: proxy
         state: present
-      with_items:
-        - proxy
-        - proxy_http
-        - proxy_html
-        - proxy_wstunnel
-        - rewrite
+
+    - name: Enable Apache2 proxy_http module
+      apache2_module:
+        name: proxy_http
+        state: present
+
+    - name: Enable Apache2 proxy_html module
+      apache2_module:
+        name: proxy_html
+        state: present
+
+    - name: Enable Apache2 proxy_wstunnel module
+      apache2_module:
+        name: proxy_wstunnel
+        state: present
+
+    - name: Enable Apache2 rewrite module
+      apache2_module:
+        name: rewrite
+        state: present
 
     - name: Copy Apache2 site configuration
       copy:
