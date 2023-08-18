@@ -13,7 +13,7 @@
         name: apache2
         state: present
 
-   - name: Enable Apache2 modules
+    - name: Enable Apache2 modules
       apache2_module:
         name: "{{ item }}"
         state: present
