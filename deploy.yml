@@ -12,11 +12,6 @@
       apt:
         name: default-jdk
         state: present
-
-    - name: Install unzip
-      apt:
-        name: unzip
-        state: present
         
     - name: Create Tomcat directory
       file:
@@ -36,7 +31,7 @@
         dest: /tmp/apache-tomcat.tar.gz
 
     - name: Unzip Tomcat tarball
-      command: tar xzf /tmp/apache-tomcat.tar.gz -C /opt/tomcat --strip-components=1
+      command: "tar -xzf /tmp/apache-tomcat.tar.gz -C /opt/tomcat"
 
 
     - name: Create symbolic link for latest Tomcat version
