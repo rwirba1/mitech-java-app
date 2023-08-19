@@ -1,5 +1,5 @@
 ---
-- name: Install and configure Apache2 with Reverse Proxy
+- name: Install and configure Apache Tomcat
   hosts: localhost
   become: yes
 
@@ -8,53 +8,66 @@
       apt:
         update_cache: yes
 
-    - name: Install Apache2
+    - name: Install default-jdk
       apt:
-        name: apache2
+        name: default-jdk
         state: present
 
-    - name: Enable Apache2 modules
-      apache2_module:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - proxy
-        - proxy_http        
+    - name: Create tomcat user
+      user:
+        name: tomcat
+        home: /opt/tomcat
+        system: yes
 
-    - name: Enable Apache2 proxy_html module
-      apache2_module:
-        name: proxy_html
-        state: present
+    - name: Download and extract Tomcat
+      get_url:
+        url: "https://downloads.apache.org/tomcat/tomcat-9/v9.0.55/bin/apache-tomcat-9.0.55.tar.gz"
+        dest: /tmp/apache-tomcat.tar.gz
 
-    - name: Enable Apache2 proxy_wstunnel module
-      apache2_module:
-        name: proxy_wstunnel
-        state: present
+    - name: Extract Tomcat
+      unarchive:
+        src: /tmp/apache-tomcat.tar.gz
+        dest: /opt/tomcat
+        remote_src: yes
 
-    - name: Enable Apache2 rewrite module
-      apache2_module:
-        name: rewrite
-        state: present
+    - name: Create symbolic link for latest Tomcat version
+      file:
+        src: /opt/tomcat/apache-tomcat-9.0.55
+        dest: /opt/tomcat/latest
+        state: link
 
-    - name: Copy Apache2 site configuration
+    - name: Set ownership and permissions
+      file:
+        path: /opt/tomcat/latest
+        recurse: yes
+        owner: tomcat
+        group: tomcat
+
+    - name: Configure Tomcat systemd service
       copy:
-        src: apache2-site.conf
-        dest: /etc/apache2/sites-available/apache2-site.conf
+        src: tomcat.service
+        dest: /etc/systemd/system/tomcat.service
 
-    - name: Disable default Apache2 site
-      apache2_module:
-        name: 000-default
-        state: absent
+    - name: Start and enable Tomcat service
+      systemd:
+        name: tomcat
+        enabled: yes
+        state: started
 
-    - name: Enable Apache2 site
-      command: a2ensite apache2-site.conf
+    - name: Open ports 80 and 8080 in firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop:
+        - 80
+        - 8080
 
-    - name: Copy mitech.jar to Apache DocumentRoot
+    - name: Copy mitech.war to Tomcat webapps
       copy:
-        src: mitech.jar
-        dest: /var/www/html/mitech.jar
+        src: mitech.war
+        dest: /opt/tomcat/latest/webapps/
 
-    - name: Reload Apache2 service
-      service:
-        name: apache2
-        state: reloaded
+    - name: Reload UFW
+      systemd:
+        name: ufw
+        state: restarted
