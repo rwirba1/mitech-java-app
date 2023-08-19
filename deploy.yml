@@ -47,7 +47,6 @@
     - name: Set ownership and permissions
       file:
         path: /opt/tomcat/latest
-        recurse: yes
         owner: tomcat
         group: tomcat
 
