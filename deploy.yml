@@ -53,11 +53,8 @@
 
     - name: Ensure scripts are executable
       file:
-        path: "/opt/tomcat/{{ item }}"
+        path: /opt/tomcat/latest/bin/startup.sh
         mode: '0755'
-      loop:
-        - bin/startup.sh
-        - bin/shutdown.sh  
 
     - name: Configure Tomcat systemd service
       copy:
