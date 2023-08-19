@@ -35,7 +35,7 @@
         dest: /tmp/apache-tomcat.tar.gz
 
     - name: Unzip Tomcat tarball
-      command: "tar -xzf /tmp/apache-tomcat.tar.gz -C /opt/tomcat"
+      command: "tar xzvf /tmp/apache-tomcat.tar.gz -C /opt/tomcat --strip-components=1"
 
 
     - name: Create symbolic link for latest Tomcat version
