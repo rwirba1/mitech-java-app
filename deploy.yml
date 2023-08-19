@@ -46,9 +46,18 @@
 
     - name: Set ownership and permissions
       file:
-        path: /opt/tomcat/latest
+        path: /opt/tomcat
         owner: tomcat
         group: tomcat
+        mode: '0755'
+
+    - name: Ensure scripts are executable
+      file:
+        path: "/opt/tomcat/{{ item }}"
+        mode: '0755'
+      loop:
+        - bin/startup.sh
+        - bin/shutdown.sh  
 
     - name: Configure Tomcat systemd service
       copy:
