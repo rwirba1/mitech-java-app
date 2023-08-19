@@ -2,6 +2,10 @@
 - name: Install and configure Apache Tomcat
   hosts: localhost
   become: yes
+  vars:
+    # Setting this for unarchive to work
+    ansible_remote_tmp: /tmp
+
 
   tasks:
     - name: Update apt cache
