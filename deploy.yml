@@ -19,7 +19,7 @@
         home: /opt/tomcat
         system: yes
 
-    - name: Download and extract Tomcat
+    - name: Download Tomcat
       get_url:
         url: "https://downloads.apache.org/tomcat/tomcat-9/v9.0.55/bin/apache-tomcat-9.0.55.tar.gz"
         dest: /tmp/apache-tomcat.tar.gz
