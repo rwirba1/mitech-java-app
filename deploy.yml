@@ -37,7 +37,7 @@
 
     - name: Extract Tomcat archive
       unarchive:
-        src: /tmp/apache-tomcat-9.0.55.tar.gz
+        src: /tmp/apache-tomcat.tar.gz
         dest: /opt/tomcat
         remote_src: yes
         creates: /opt/tomcat/apache-tomcat-9.0.55
